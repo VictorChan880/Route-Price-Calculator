@@ -1,2 +1,2 @@
 # Route-Price-Calculator
-![Alt text](routeprice.jpg)
+![Alt text](routeprice.PNG)
