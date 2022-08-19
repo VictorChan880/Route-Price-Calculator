@@ -1,39 +1,41 @@
 
-async function getCity(lat, lng) {
-	city = await fetch("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&result_type=locality&key=AIzaSyDDS7FDD6jI3m2AV3ARFvV8yxWNjcT62jM")
-	.then((response) => response.json())
-	.then ( (data) => {
-		return data.results[0].address_components[0].short_name;
-	})
-	return city; 
-	
+async function getInfo()  {
+  geocoder = new google.maps.Geocoder();
+  request = {
+    address: document.getElementById('from').value
+  }
+    data = await geocoder.geocode(request);
+    return data; 
 }
-async function getLongProvince(lat, lng) {
-	longProvince = await fetch("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&result_type=administrative_area_level_1&key=AIzaSyDDS7FDD6jI3m2AV3ARFvV8yxWNjcT62jM")
-	.then((response) => response.json())
-	.then ( (data) => {
-		return data.results[0].address_components[0].long_name;
-	})
-	return longProvince; 
-	
+async function getCity (data) {
+  for (let i = 0; i < data.results[0].address_components.length; i++) { 
+    var type = data.results[0].address_components[i].types[0];
+    if (type === 'locality') {
+      longCity = data.results[0].address_components[i].long_name;
+      return longCity;
+    }
+  }
+} 
+async function getProvince(data, isLongName/*True for longname, false for shortname*/) {
+  for (let i = 0; i < data.results[0].address_components.length; i++) { 
+    var type = data.results[0].address_components[i].types[0];
+    if (type === 'administrative_area_level_1') {
+      longProvince = data.results[0].address_components[i].long_name;
+      shortProvince = data.results[0].address_components[i].short_name;
+
+      return (isLongName ? longProvince : shortProvince); 
+    }
+  }
 }
-async function getShortProvince(lat, lng) {
-	shortProvince = await fetch("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&result_type=administrative_area_level_1&key=AIzaSyDDS7FDD6jI3m2AV3ARFvV8yxWNjcT62jM")
-	.then((response) => response.json())
-	.then ( (data) => {
-		return data.results[0].address_components[0].short_name;
-	})
-	return shortProvince; 
-	
-}
-async function getCountry(lat, lng) {
-	country = await fetch("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&result_type=country&key=AIzaSyDDS7FDD6jI3m2AV3ARFvV8yxWNjcT62jM")
-	.then((response) => response.json())
-	.then ( (data) => {
-		return data.results[0].address_components[0].short_name;
-	})
-	return country; 
-	
+async function getCountry(data) {
+  for (let i = 0; i < data.results[0].address_components.length; i++) { 
+    var type = data.results[0].address_components[i].types[0];
+    if (type === 'country') {
+      country = data.results[0].address_components[i].short_name; 
+      return country; 
+    }
+  }
+  
 }
 async function getGas (city, longProvince, shortProvince, country, fuelType) {
  
@@ -85,20 +87,12 @@ async function getGas (city, longProvince, shortProvince, country, fuelType) {
   };
 
   return await fetch("https://www.gasbuddy.com/graphql", requestOptions)
-    .then(response => response.json())
-    .then(data => {
-    	return data; 
+    .then( function(response){
+      return response.json();
+    })
+    .then( function(data) {
+      return data; 
     })
     .catch(error => console.log('error', error));
 
-}
-
-async function getLatLng() {
-	address = document.getElementById("from").value
-	latlng = await fetch("https://maps.googleapis.com/maps/api/geocode/json?address=" + address+ "&key=AIzaSyDDS7FDD6jI3m2AV3ARFvV8yxWNjcT62jM").then(function(response) {
-	  return response.json();
-	}).then(function(data) {
-	  	return data.results[0].geometry.location;
-	});
-	return latlng;
 }

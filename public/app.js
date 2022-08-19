@@ -5,8 +5,6 @@ var mapOptions = {
 	zoom: 10,
 	mapTypeId: 'roadmap'
 }
-const api_key = "AIzaSyDDS7FDD6jI3m2AV3ARFvV8yxWNjcT62jM"; 
-
 //create map and marker
 var map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
@@ -82,7 +80,7 @@ async function getDistance () {
 var options = {
  	fields: ["formatted_address"],
  	componentRestrictions: {
- 		country : 'CA', 
+ 		country : 'CA',
  	}
 }
 var input1 = document.getElementById('from');
