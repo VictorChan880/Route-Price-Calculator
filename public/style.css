@@ -1,18 +1,38 @@
-body {
-	font-family: "Poppins, sans-serif;";
-	background-color: transparent;
-	text-align: center;
+#wrapper { 
+   position: fixed; 
+   width:100%;
+   height:100%;
+   top: 0px;
+   left: 0px;
+}
+#over_map { 
+   position: absolute;
+   top: 10px; 
+   left: 10px; 
+   z-index: 99;
+   background-color: white; 
 }
 #map {
-	margin: auto;
-	height: 400px;
-	width: 60%;
+   width: 100%;
+   height: 100% ;
 }
-input[type = "text"] {
-	width: 200px;
+#output {
+   position: absolute;
+   top: 50%; 
+   left:7%; 
+   z-index: 99;
 }
-.alert-info {
-	text-align: center;
-	color: black;
-	font-size: 20px;
+.form-group {
+   margin-bottom: 10px;
+
+}
+#fuelTypeSelect {
+   font-size: 16px;
+   font-family: Helvetica Neue ,Helvetica, Arial, sans-serif;
+}
+#gas-icon-wrapper {
+   text-align: center;
+}
+#icon {
+   margin-top: 18px;
 }

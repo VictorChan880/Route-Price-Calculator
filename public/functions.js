@@ -22,7 +22,6 @@ async function getProvince(data, isLongName/*True for longname, false for shortn
     if (type === 'administrative_area_level_1') {
       longProvince = data.results[0].address_components[i].long_name;
       shortProvince = data.results[0].address_components[i].short_name;
-
       return (isLongName ? longProvince : shortProvince); 
     }
   }
@@ -74,7 +73,7 @@ async function getGas (city, longProvince, shortProvince, country, fuelType) {
       },
       // Regular: 1, Midgrade: 2, Premium: 3, Diesel: 4
       "fuel": fuelType,
-      "regionCode": "ON"
+      "regionCode": shortProvince
     },
     "query": "query LocationByArea($area: String, $countryCode: String, $criteria: Criteria, $fuel: Int, $regionCode: String) {\n  locationByArea(\n    area: $area\n    countryCode: $countryCode\n    criteria: $criteria\n    regionCode: $regionCode\n  ) {\n    counties {\n      countryCode\n      displayName\n      legacyId\n      regionCode\n      __typename\n    }\n    displayName\n    locationType\n    localities {\n      countryCode\n      displayName\n      regionCode\n      __typename\n    }\n    metros {\n      countryCode\n      displayName\n      regionCode\n      __typename\n    }\n    stations(fuel: $fuel) {\n      results {\n        address {\n          country\n          line1\n          line2\n          locality\n          postalCode\n          region\n          __typename\n        }\n        amenities {\n          amenity_id\n          name\n          image_url\n          __typename\n        }\n        badges {\n          badgeId\n          callToAction\n          campaignId\n          clickTrackingUrl\n          description\n          detailsImageUrl\n          detailsImpressionTrackingUrls\n          imageUrl\n          impressionTrackingUrls\n          internalName\n          targetUrl\n          title\n          __typename\n        }\n        brands {\n          brand_id\n          branding_type\n          image_url\n          name\n          __typename\n        }\n        emergency_status {\n          has_diesel {\n            nick_name\n            report_status\n            update_date\n            __typename\n          }\n          has_gas {\n            nick_name\n            report_status\n            update_date\n            __typename\n          }\n          has_power {\n            nick_name\n            report_status\n            update_date\n            __typename\n          }\n          __typename\n        }\n        latitude\n        longitude\n        enterprise\n        fuels\n        id\n        name\n        pay_status {\n          is_pay_available\n          __typename\n        }\n        prices(fuel: $fuel) {\n          cash {\n            nickname\n            posted_time\n            price\n            __typename\n          }\n          credit {\n            nickname\n            posted_time\n            price\n            __typename\n          }\n          discount\n          fuel_product\n          __typename\n        }\n        ratings_count\n        reviews(limit: 1) {\n          results {\n            agreeTotal\n            canDelete\n            hasAgreed\n            isReportable\n            isVisible\n            memberId\n            overallRating\n            profileImageUrl\n            replyRequested\n            review\n            reviewId\n            reviewDate\n            sentimentScore\n            __typename\n          }\n          __typename\n        }\n        star_rating\n        offers {\n          discounts {\n            grades\n            pwgb_discount\n            __typename\n          }\n          types\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
   });
@@ -94,5 +93,82 @@ async function getGas (city, longProvince, shortProvince, country, fuelType) {
       return data; 
     })
     .catch(error => console.log('error', error));
+
+}
+function hasEmptyField() {
+  var flag = false;
+  if (document.getElementById('from').value.length == 0) {
+      document.getElementById('from-alert').innerHTML = 'Please Fill In This Field.'
+      flag = true;
+  }
+
+  if (document.getElementById('to').value.length == 0) {
+      document.getElementById('to-alert').innerHTML = 'Please Fill In This Field.'
+      flag = true;
+  }
+
+  if (document.getElementById('fuel-efficiency').value.length == 0) {
+      document.getElementById('fuel-efficiency-alert').innerHTML = 'Please Fill In This Field.'
+      flag = true;
+  } 
+   
+  return flag; 
+}
+
+async function print () {
+        const data = await getInfo(); 
+        city = await getCity(data)
+        longProvince = await getProvince(data,true)
+        shortProvince = await getProvince(data,false)
+        country = await getCountry(data)
+        fuelType = parseInt(document.getElementById('fuelTypeSelect').value)
+        console.log(fuelType);
+        fuelEfficiency = parseInt(document.getElementById('fuel-efficiency').value)
+        fuelData = await getGas(city,longProvince,shortProvince,country, fuelType); 
+
+        start = document.getElementById('from').value
+        end = document.getElementById('to').value
+        distance = parseFloat((await getDistance()).replace(',', ''))
+        fuelVolume = distance/fuelEfficiency; 
+        fuelPrice= fuelData.data.locationByArea.stations.results[3].prices[0].credit.price/100; 
+
+        cost = fuelVolume * fuelPrice;
+        document.getElementById('output').innerHTML = '';
+        document.getElementById('output').innerHTML = 
+          '<div class="card border text-light bg-dark" style = "font-size: 25px; border-radius: 20px;">' + 
+            '<div class="card-body " style ="border-radius: 20px">' + 
+            '<div class = "row">' + 
+              '<div class="col-1">'+ 
+                  '<i class="fa-solid fa-road"></i>' +
+              '</div>' + 
+              '<div class="col ms-2">' + 
+                  'Distance: <b>' + distance + ' km</b>' + 
+                '</div>' +
+              '</div>' + 
+              '<div class="row">' + 
+                '<div class="col-1">' +
+                  '<i class="fa-solid fa-sm fa-gas-pump"></i>' + 
+                '</div>' +
+                '<div class="col ms-2">' +
+                  'Fuel Price: <b>' + fuelPrice *100 + '</b>' + 
+                '</div>' + 
+              '</div>' +
+              '<div class="row">' +
+                '<div class="col-1">' + 
+                  '<i class="fa-solid fa-dollar-sign"></i>' +
+                '</div>' +
+                '<div class="col ms-1">' +
+                  'Route Cost:<b> $'+ cost.toFixed(2) + '</b>' +
+                '</div>'+
+              '</div>'+
+            '</div>' + 
+        '</div>' 
+
+       
+      }
+function clearErrors() {
+  document.getElementById('from-alert').innerHTML = ''
+  document.getElementById('to-alert').innerHTML = ''
+  document.getElementById('fuel-efficiency-alert').innerHTML = ''
 
 }

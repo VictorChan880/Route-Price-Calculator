@@ -3,7 +3,14 @@ var mylatlng = {lat: 43.8561, lng: -79.3370}
 var mapOptions = {
 	center: mylatlng,
 	zoom: 10,
-	mapTypeId: 'roadmap'
+	mapTypeId: 'roadmap',
+	zoomControl: true,
+ 	rotateControl: true,
+  	mapTypeControl: false,
+   	scaleControl: true,
+
+
+
 }
 //create map and marker
 var map = new google.maps.Map(document.getElementById('map'), mapOptions);
